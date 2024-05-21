@@ -1,6 +1,6 @@
 # Todo App
 
-This is a simple Todo application built with Python, Flask, MySQL, and HTML/CSS/JavaScript. The application allows you to add, update, and delete todo items.
+This is a simple TODO application built with Python, Flask, MySQL, and HTML/CSS/JavaScript. The application allows you to add, update, and delete TODO items.
 
 ## Project Structure
 
