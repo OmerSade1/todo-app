@@ -1,0 +1,34 @@
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "8081:80"
+    volumes:
+        - ./frontend:/usr/share/nginx/html
+    depends_on:
+      - backend
+
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - db
+
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: todo_db
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./db:/docker-entrypoint-initdb.d  # Bind database files
+
+
+volumes:
+  db_data:
