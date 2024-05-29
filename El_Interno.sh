@@ -30,6 +30,7 @@ do
     echo "This is file $i" > file$i.txt
     git add file$i.txt
     git commit -m "Add file $i"
+    #git push origin master
 done
 
 # Create a number of branches and commits
@@ -42,6 +43,7 @@ do
         echo "This is file $j in branch $i" > file$j.txt
         git add file$j.txt
         git commit -m "Add file $j in branch $i"
+        git push origin branch$i
     done
 done
 
@@ -54,6 +56,7 @@ do
     git checkout --theirs .
     git add .
     git commit -m "Merge branch$i into master, resolving conflicts by taking changes from branch$i"
+    git push origin master
 done
 
 # Create some orphan branches
@@ -63,6 +66,7 @@ do
     echo "This is file in orphan$i" > file_orphan$i.txt
     git add file_orphan$i.txt
     git commit -m "Add file in orphan$i"
+    git push origin orphan$i
 done
 
 # Create some stashes
