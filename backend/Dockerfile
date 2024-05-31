@@ -9,22 +9,26 @@ COPY requirements.txt  requirements.txt
 
 # Create a user to run the app not as root
 RUN adduser --disabled-password myuser
+
+# Give the user permission to the /app directory
+RUN chown -R myuser:myuser /app
+
+# Switch to the new user
 USER myuser
 
-#create a virtual environment for the app
-RUN python3 -m venv venv
+# give the user permission to the execute the app
+RUN chmod +x /app
 
-#Activate the virtual environment
-RUN /bin/bash -c "source venv/bin/activate"
-
+USER root
 #Install python3
-RUN apt-get update && apt-get install -y python3-pip
+RUN apt-get update -y && apt-get install -V -y python3-pip
 
-#Upgrade pip
-RUN pip install --upgrade pip
+# Install requirements
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-RUN pip install --no-cache-dir -r requirements.txt
+USER myuser
 
 COPY . .
 
-CMD ["/bin/bash", "-c", "source venv/bin/activate && python3 app.py"]
+CMD ["python3", "app.py"]
