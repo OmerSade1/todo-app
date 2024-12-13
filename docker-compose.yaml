@@ -18,7 +18,7 @@ services:
       - FLASK_ENV=development
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
-      - DB_HOST=db  # Ensure this matches the service name for MySQL
+      - DB_HOST=${DB_HOST}  
     volumes:
       - ./backend:/app
     depends_on:
@@ -30,12 +30,11 @@ services:
   db:
     image: mysql:5.7
     environment:
-      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}  # Match the backend DB_PASSWORD
-      - MYSQL_DATABASE=${DB_NAME}  # Match the backend DB_NAME
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}  
+      - MYSQL_DATABASE=${DB_NAME} 
     volumes:
       - db_data:/var/lib/mysql
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql  # Include init.sql for custom grants
-    networks:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql  
       - backend_network
 
 volumes:
