@@ -29,16 +29,26 @@ jobs:
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: Set Version Tag
+      - name: Read current version from VERSION.txt
+        id: version
         run: |
-          VERSION_TAG="v${{ github.run_number }}"
-          echo "VERSION_TAG=${VERSION_TAG}" >> $GITHUB_ENV
+          VERSION=$(cat VERSION.txt)
+          echo "Current version: $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Increment version
+        id: increment_version
+        run: |
+          NEW_VERSION=$((VERSION + 1))
+          echo "New version: $NEW_VERSION"
+          echo $NEW_VERSION > VERSION.txt
+          echo "VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
       - name: Build frontend image
-        run: docker build -t $DOCKER_REPO/frontend:${{ env.VERSION_TAG }} ./frontend
+        run: docker build -t $DOCKER_REPO/frontend:v${{ env.VERSION }} ./frontend
 
       - name: Build backend image
-        run: docker build -t $DOCKER_REPO/backend:${{ env.VERSION_TAG }} ./backend
+        run: docker build -t $DOCKER_REPO/backend:v${{ env.VERSION }} ./backend
 
       - name: Start services with Docker Compose
         run: docker compose up -d
@@ -51,14 +61,19 @@ jobs:
 
       - name: Tag and push frontend image
         run: |
-          docker tag $DOCKER_REPO/frontend:${{ env.VERSION_TAG }} $DOCKER_REPO/frontend:${{ env.VERSION_TAG }}
-          docker push $DOCKER_REPO/frontend:${{ env.VERSION_TAG }}
+          docker push $DOCKER_REPO/frontend:v${{ env.VERSION }}
 
       - name: Tag and push backend image
         run: |
-          docker tag $DOCKER_REPO/backend:${{ env.VERSION_TAG }} $DOCKER_REPO/backend:${{ env.VERSION_TAG }}
-          docker push $DOCKER_REPO/backend:${{ env.VERSION_TAG }}
+          docker push $DOCKER_REPO/backend:v${{ env.VERSION }}
 
       - name: Clean up
         run: docker compose down
 
+      - name: Commit and push updated version
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add VERSION.txt
+          git commit -m "Increment version to v${{ env.VERSION }}"
+          git push
