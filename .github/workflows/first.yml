@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build-and-deploy:
@@ -13,6 +13,8 @@ jobs:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       DOCKER_REPO: omersade
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_NAME: ${{ secrets.DB_NAME }}
 
     steps:
       - name: Checkout code
@@ -44,6 +46,12 @@ jobs:
           echo $NEW_VERSION > VERSION.txt
           echo "VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
+      - name: Create .env file with secrets
+        run: |
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" > .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          cat .env # Optional: To verify the content (beware of logs)
+
       - name: Build frontend image
         run: docker build -t $DOCKER_REPO/frontend:v${{ env.VERSION }} ./frontend
 
@@ -51,7 +59,7 @@ jobs:
         run: docker build -t $DOCKER_REPO/backend:v${{ env.VERSION }} ./backend
 
       - name: Start services with Docker Compose
-        run: docker compose up -d
+        run: docker-compose --env-file .env up -d
 
       - name: Wait for services to start
         run: sleep 10
@@ -68,7 +76,7 @@ jobs:
           docker push $DOCKER_REPO/backend:v${{ env.VERSION }}
 
       - name: Clean up
-        run: docker compose down
+        run: docker-compose down
 
       - name: Commit and push updated version
         run: |
