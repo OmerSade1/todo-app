@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   frontend:
     build: ./frontend
@@ -18,25 +16,27 @@ services:
       - "5000:5000"
     environment:
       - FLASK_ENV=development
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=db  # Ensure this matches the service name for MySQL
     volumes:
       - ./backend:/app
     depends_on:
       - db
     networks:
       - backend_network
-      - frontend_network  
+      - frontend_network
 
   db:
     image: mysql:5.7
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}  # Match the backend DB_PASSWORD
+      - MYSQL_DATABASE=${DB_NAME}  # Match the backend DB_NAME
     volumes:
       - db_data:/var/lib/mysql
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./db:/docker-entrypoint-initdb.d
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql  # Include init.sql for custom grants
     networks:
-      - backend_network  
+      - backend_network
 
 volumes:
   db_data:
@@ -46,3 +46,5 @@ networks:
     driver: bridge
   backend_network:
     driver: bridge
+
+

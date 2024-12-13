@@ -1,3 +1,4 @@
+import os
 import logging
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
@@ -5,7 +6,11 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@db/todo_db'
+
+db_password = os.getenv('DB_PASSWORD')
+db_name = os.getenv('DB_NAME')
+
+app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://root:{db_password}@db/{db_name}"
 db = SQLAlchemy(app)
 
 # Configure logging
@@ -47,3 +52,4 @@ def delete_todo(id):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
