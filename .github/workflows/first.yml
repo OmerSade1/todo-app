@@ -21,6 +21,12 @@ jobs:
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
 
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose-plugin
+          docker compose version  # Verify the installation
+
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
@@ -35,7 +41,7 @@ jobs:
         run: docker build -t $DOCKER_REPO/backend:${{ env.VERSION }} ./backend
 
       - name: Start services with Docker Compose
-        run: docker-compose up -d
+        run: docker compose up -d
 
       - name: Wait for services to start
         run: sleep 10
@@ -56,4 +62,5 @@ jobs:
           docker push $DOCKER_REPO/backend:latest
 
       - name: Clean up
-        run: docker-compose down
+        run: docker compose down
+
