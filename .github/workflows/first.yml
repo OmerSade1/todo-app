@@ -51,14 +51,14 @@ jobs:
 
       - name: Tag and push frontend image
         run: |
-          docker tag $DOCKER_REPO/frontend:${{ env.VERSION_TAG }}
+          docker tag $DOCKER_REPO/frontend:${{ env.VERSION_TAG }} $DOCKER_REPO/frontend:${{ env.VERSION_TAG }}
           docker push $DOCKER_REPO/frontend:${{ env.VERSION_TAG }}
 
       - name: Tag and push backend image
         run: |
-          docker tag $DOCKER_REPO/backend:${{ env.VERSION_TAG }} 
-          docker push $DOCKER_REPO/backend:${{ env.VERSION_TAG}}
-        
+          docker tag $DOCKER_REPO/backend:${{ env.VERSION_TAG }} $DOCKER_REPO/backend:${{ env.VERSION_TAG }}
+          docker push $DOCKER_REPO/backend:${{ env.VERSION_TAG }}
+
       - name: Clean up
         run: docker compose down
 
