@@ -1,12 +1,16 @@
+version: '3'
+
 services:
   frontend:
     build: ./frontend
     ports:
       - "8081:80"
     volumes:
-        - ./frontend:/usr/share/nginx/html
+      - ./frontend:/usr/share/nginx/html
     depends_on:
       - backend
+    networks:
+      - frontend_network
 
   backend:
     build: ./backend
@@ -18,6 +22,9 @@ services:
       - ./backend:/app
     depends_on:
       - db
+    networks:
+      - backend_network
+      - frontend_network  
 
   db:
     image: mysql:5.7
@@ -27,8 +34,15 @@ services:
     volumes:
       - db_data:/var/lib/mysql
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./db:/docker-entrypoint-initdb.d  # Bind database files
-
+      - ./db:/docker-entrypoint-initdb.d
+    networks:
+      - backend_network  
 
 volumes:
   db_data:
+
+networks:
+  frontend_network:
+    driver: bridge
+  backend_network:
+    driver: bridge
